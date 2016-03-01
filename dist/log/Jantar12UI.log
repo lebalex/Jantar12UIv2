@@ -1,0 +1,4 @@
+25-01-2016 18:00:02 ERROR AWT-EventQueue-0 LoadData:getProp:196 - java.io.FileNotFoundException: .\pro\main.properties (Системе не удается найти указанный путь)
+25-01-2016 18:00:02 ERROR AWT-EventQueue-0 LoadData:getProp:197 - Ошибка загрузки файла конфигураций :D:\Work\Jantar\ISEM\Jantar12UIv2/programm/
+25-01-2016 18:00:02 ERROR AWT-EventQueue-0 LoadData:getProp:196 - java.io.FileNotFoundException: .\pro\main.properties (Системе не удается найти указанный путь)
+25-01-2016 18:00:02 ERROR AWT-EventQueue-0 LoadData:getProp:197 - Ошибка загрузки файла конфигураций :D:\Work\Jantar\ISEM\Jantar12UIv2/programm/
