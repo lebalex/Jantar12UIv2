@@ -6,10 +6,6 @@ package jantar12ui;
 
 import java.util.Vector;
 
-/**
- *
- * @author ivc_LebedevAV 2.03.2016 2
- */
 public class BufferClass {
     private static BufferClass instance;
     private Vector dateVector;
