@@ -8,7 +8,7 @@ import java.util.Vector;
 
 /**
  *
- * @author ivc_LebedevAV
+ * @author ivc_LebedevAV 2.03.2016
  */
 public class BufferClass {
     private static BufferClass instance;
