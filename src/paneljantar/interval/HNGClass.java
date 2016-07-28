@@ -40,7 +40,8 @@ public class HNGClass extends EditClass implements PanelInterface {
     //private int countNRRIdx=0;
     private JScrollPane jScrollPane1;
     private List<JScrollPane> jScrollPane1List;
-    private int countVEC;
+    //private int countVEC;
+    private int countIA;
     public HNGClass(JTabbedPane tab) {
         tabPane = tab;
     }
@@ -50,7 +51,8 @@ public class HNGClass extends EditClass implements PanelInterface {
         fileName = LoadData.getPathJantar12() + "Data/" + fName;
         getContextFile(fileName);
         int countM = new SXMClass(null).getM(projectName.substring(projectName.indexOf("/")+1, projectName.length()) +".SXM");
-        countVEC = ((List<String>)(new VECClass(null).getVEC(projectName.substring(projectName.indexOf("/")+1, projectName.length()) +".VEC"))).size();
+        countIA = new SXMClass(null).getIA(projectName.substring(projectName.indexOf("/")+1, projectName.length()) +".SXM");
+        //countVEC = ((List<String>)(new VECClass(null).getVEC(projectName.substring(projectName.indexOf("/")+1, projectName.length()) +".VEC"))).size();
         int countID = new IDDClass(null).getID(projectName+".IDD");
         
         jPanel1 = new javax.swing.JPanel();
@@ -110,9 +112,10 @@ public class HNGClass extends EditClass implements PanelInterface {
             JTable jT = jTableList.get(jTabbedPane.getSelectedIndex());
             String val = (String)jT.getValueAt(row, column);
             int numVec=0;
-            try{numVec=Integer.parseInt(val.trim());}catch(Exception er){}
-            if(numVec>(countVEC+1))
-            jT.setValueAt("ошибка", row, column);
+            try{numVec=Integer.parseInt(val.trim());}
+            catch(Exception er){}
+            if(numVec>(countIA+1))
+                jT.setValueAt("ошибка", row, column);
           }
           
         updateTitle(true);

@@ -5035,3 +5035,4 @@
 11-05-2012 11:27:43 ERROR AWT-EventQueue-0 VSVClass:getContextFile:176 - java.io.FileNotFoundException: D:\work\Jantar\Fortran\Jantar12\Jantar12\Data\Interv03\EEC_2000.VSV (Не удается найти указанный файл)
 11-05-2012 11:27:43 ERROR AWT-EventQueue-0 VSVClass:saveValue:234 - java.lang.NullPointerException
 11-05-2012 11:27:44 ERROR AWT-EventQueue-0 VSVClass:getContextFile:203 - java.io.IOException: Stream closed
+28-07-2016 13:35:12 ERROR AWT-EventQueue-0 VECClass:getContextFile:157 - java.io.FileNotFoundException: D:\Work\Jantar\ISEM\programm\Data\EEC_2020.VEC (Не удается найти указанный файл)
