@@ -96,4 +96,4 @@ private ExtNameClass extNameClass;
         //return 12;
         return new SXMClass(null).getKS(projectName+".SXM");
     }
-}
+        }

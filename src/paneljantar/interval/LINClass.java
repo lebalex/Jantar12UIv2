@@ -33,7 +33,6 @@ public class LINClass extends EditClass implements PanelInterface {
     Object[][] data;
     private List<JTable> jTableList;
     private List<ExcelAdapter> excelAdapterList;
-    private String fileName;
     private String projectName;
     private JList rowHeader;
     private int countIBIdx = 0;
@@ -46,7 +45,7 @@ public class LINClass extends EditClass implements PanelInterface {
 
     public JPanel getPanel(String fName) {
         projectName = fName.substring(0, fName.indexOf("."));
-        fileName = LoadData.getPathJantar12() + "Data/" + fName;
+        String fileName = LoadData.getPathJantar12() + "Data/" + fName;
         getContextFile(fileName);
         int countIB = new SXMClass(null).getIB(projectName.substring(projectName.indexOf("/") + 1, projectName.length()) + ".SXM");
         jPanel1 = new javax.swing.JPanel();
@@ -194,19 +193,21 @@ public class LINClass extends EditClass implements PanelInterface {
         String dataIZL = "";
         int countGroupAg = 0;
         try {
+            int countKS = new SXMClass(null).getKS(projectName.substring(projectName.indexOf("/") + 1, projectName.length()) + ".SXM");
             //выделим номер интервала
             Pattern p = Pattern.compile("Interv([0-9]*)");
-            Matcher m = p.matcher(fileName);
+            Matcher m = p.matcher(projectName);
             String numIntervalStart = "01";
             if (m.find()) {
                 numIntervalStart = m.group(1);
-            }
-            for (int i_interv = Integer.parseInt(numIntervalStart); i_interv <= 12; i_interv++) {
+            }else logger_job.log(Level.ERROR, "no matcher 'Interv([0-9]*)' in "+projectName);
+            for (int i_interv = Integer.parseInt(numIntervalStart); i_interv <= countKS; i_interv++) {
                 String newIndexInterv = i_interv + "";
                 if (i_interv < 10) {
                     newIndexInterv = "0" + i_interv;
                 }
-                String fileName_i = fileName.replaceAll(numIntervalStart, newIndexInterv);
+                String projectName_i = projectName.replaceAll(numIntervalStart+"/", newIndexInterv+"/");
+                String fileName_i= LoadData.getPathJantar12() + "Data/" + projectName_i+".LIN";
                 try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName_i), "Cp1251"))) {
                     for (int tabIdx = 0; tabIdx < jTableList.size(); tabIdx++) {
                         JTable jT = jTableList.get(tabIdx);
@@ -227,8 +228,9 @@ public class LINClass extends EditClass implements PanelInterface {
                         countGroupAg = 0;
                     }
                 }
+                new IZLClass().saveDataFromAGR(projectName_i + ".IZL", dataIZL.substring(0, dataIZL.length() - 1));
             }
-            new IZLClass().saveDataFromAGR(projectName + ".IZL", dataIZL.substring(0, dataIZL.length() - 1));
+            
             updateTitle(false);
 
         } catch (Exception e) {

@@ -206,26 +206,13 @@ jScrollPane1.setViewportView(jTable1);
 
     public void saveDataFromAGR(String fName, String data) {
         fileName = LoadData.getPathJantar12() + "Data/" + fName;
-        Pattern p = Pattern.compile("Interv([0-9]*)");
-        Matcher m = p.matcher(fileName);
-        String numIntervalStart = "01";
-        if (m.find()) {
-            numIntervalStart = m.group(1);
-        }
-        for (int i_interv = Integer.parseInt(numIntervalStart); i_interv <= 12; i_interv++) {
-            String newIndexInterv = i_interv + "";
-            if (i_interv < 10) {
-                newIndexInterv = "0" + i_interv;
-            }
-            String fileName_i = fileName.replaceAll(numIntervalStart, newIndexInterv);
             try {
-                try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName_i), "Cp1251"))) {
+                try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName), "Cp1251"))) {
                     pw.println(data);
                 }
 
             } catch (Exception e) {
                 logger_job.log(Level.ERROR, e);
             }
-        }
     }
 }
