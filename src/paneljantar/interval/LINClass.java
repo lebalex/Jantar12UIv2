@@ -195,18 +195,18 @@ public class LINClass extends EditClass implements PanelInterface {
         try {
             int countKS = new SXMClass(null).getKS(projectName.substring(projectName.indexOf("/") + 1, projectName.length()) + ".SXM");
             //выделим номер интервала
-            Pattern p = Pattern.compile("Interv([0-9]*)");
-            Matcher m = p.matcher(projectName);
+            Pattern p = Pattern.compile("interv([0-9]*)");
+            Matcher m = p.matcher(projectName.toLowerCase());
             String numIntervalStart = "01";
             if (m.find()) {
                 numIntervalStart = m.group(1);
-            }else logger_job.log(Level.ERROR, "no matcher 'Interv([0-9]*)' in "+projectName);
+            }else logger_job.log(Level.ERROR, "no matcher 'interv([0-9]*)' in "+projectName);
             for (int i_interv = Integer.parseInt(numIntervalStart); i_interv <= countKS; i_interv++) {
                 String newIndexInterv = i_interv + "";
                 if (i_interv < 10) {
                     newIndexInterv = "0" + i_interv;
                 }
-                String projectName_i = projectName.replaceAll(numIntervalStart+"/", newIndexInterv+"/");
+                String projectName_i = projectName.replace(numIntervalStart+"/", newIndexInterv+"/");
                 String fileName_i= LoadData.getPathJantar12() + "Data/" + projectName_i+".LIN";
                 try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName_i), "Cp1251"))) {
                     for (int tabIdx = 0; tabIdx < jTableList.size(); tabIdx++) {
