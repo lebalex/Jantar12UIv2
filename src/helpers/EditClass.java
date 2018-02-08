@@ -35,6 +35,7 @@ public class EditClass {
     public String INSERT_CMD = "Вставить строку";
     public String DELETE_CMD = "Удалить строку";
     public String CLEAR_CMD = "Очистить строку";
+    public String ADD_CMD = "Добавить строку";
     //public String COPY_CMD = "Копировать дынные";
     //public String PASTE_CMD = "Вставить данные";
     PanelInterface adaptee;
@@ -70,6 +71,11 @@ public class EditClass {
         if ((adaptee instanceof NAMClass)) {
             menuItem = new JMenuItem(INSERT_CMD);
             menuItem.addActionListener(new InsertRowsActionAdapter(adaptee));
+            popupMenu.add(menuItem);
+        }
+        if ((adaptee instanceof LINClass) || (adaptee instanceof AGRClass)) {
+            menuItem = new JMenuItem(ADD_CMD);
+            menuItem.addActionListener(new AddRowsActionAdapter(adaptee));
             popupMenu.add(menuItem);
         }
         //if((adaptee instanceof HGNClass))
@@ -162,7 +168,11 @@ public class EditClass {
         DefaultTableModel dtm = (DefaultTableModel) jT.getModel();
         dtm.insertRow(row, new Vector());
     }
-
+    public void addRowsActionPerformed(ActionEvent e) {
+        JTable jT = adaptee.getTable();
+        DefaultTableModel dtm = (DefaultTableModel) jT.getModel();
+        dtm.addRow(new Vector());
+    }
     public void copyRowsActionPerformed(ActionEvent e) {
         JTable jT = adaptee.getTable();
         int row = jT.getSelectedRow();

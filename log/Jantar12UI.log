@@ -5036,3 +5036,12 @@
 11-05-2012 11:27:43 ERROR AWT-EventQueue-0 VSVClass:saveValue:234 - java.lang.NullPointerException
 11-05-2012 11:27:44 ERROR AWT-EventQueue-0 VSVClass:getContextFile:203 - java.io.IOException: Stream closed
 28-07-2016 13:35:12 ERROR AWT-EventQueue-0 VECClass:getContextFile:157 - java.io.FileNotFoundException: D:\Work\Jantar\ISEM\programm\Data\EEC_2020.VEC (Не удается найти указанный файл)
+07-02-2018 08:48:56 ERROR AWT-EventQueue-0 AGRClass:getContextFile:185 - java.io.FileNotFoundException: D:\work\Jantar\ISEM\programm\Data\D:\work\Jantar\ISEM\programm\Data\Interv04\Monog_08.AGR (Синтаксическая ошибка в имени файла, имени папки или метке тома)
+07-02-2018 08:48:56 ERROR AWT-EventQueue-0 SXMClass:getContextFile:184 - java.io.FileNotFoundException: D:\work\Jantar\ISEM\programm\Data\programm\Data\Interv04\Monog_08.SXM (Системе не удается найти указанный путь)
+07-02-2018 08:48:56 ERROR AWT-EventQueue-0 AGRClass:saveValue:282 - java.lang.IndexOutOfBoundsException: Index: 2, Size: 0
+07-02-2018 08:49:02 ERROR AWT-EventQueue-0 AGRClass:getContextFile:213 - java.io.IOException: Stream closed
+07-02-2018 08:49:02 ERROR AWT-EventQueue-0 SXMClass:getContextFile:184 - java.io.FileNotFoundException: D:\work\Jantar\ISEM\programm\Data\programm\Data\Interv04\Monog_08.SXM (Системе не удается найти указанный путь)
+07-02-2018 08:49:02 ERROR AWT-EventQueue-0 AGRClass:saveValue:282 - java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+08-02-2018 04:12:41 ERROR AWT-EventQueue-0 AGRClass:getPanel:122 - 1
+08-02-2018 04:12:42 ERROR AWT-EventQueue-0 AGRClass:getPanel:122 - 50
+08-02-2018 04:12:43 ERROR AWT-EventQueue-0 AGRClass:getPanel:122 - 62

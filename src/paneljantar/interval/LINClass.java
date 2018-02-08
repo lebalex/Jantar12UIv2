@@ -5,7 +5,6 @@
 package paneljantar.interval;
 
 import helpers.*;
-import jantar12ui.ButtonTabComponent;
 import jantar12ui.LoadData;
 import java.io.*;
 import java.util.ArrayList;
@@ -38,6 +37,7 @@ public class LINClass extends EditClass implements PanelInterface {
     private int countIBIdx = 0;
     private JScrollPane jScrollPane1;
     private List<JScrollPane> jScrollPane1List;
+    private List<LogEditClass> logEditClassList;
 
     public LINClass(JTabbedPane tab) {
         tabPane = tab;
@@ -53,6 +53,7 @@ public class LINClass extends EditClass implements PanelInterface {
         jTableList = new ArrayList<JTable>();
         excelAdapterList = new ArrayList<ExcelAdapter>();
         jScrollPane1List = new ArrayList<JScrollPane>();
+        logEditClassList = new ArrayList<>();
 
         /**/
         for (int idx = 0; idx < countIB; idx++) {
@@ -73,26 +74,8 @@ public class LINClass extends EditClass implements PanelInterface {
                 columnNamesDescript[i] = LoadData.getDescript(string);
                 i++;
             }
-            data = new Object[50][5 + 1];
-            int j = 0;
-            int ri = 0;
-            for (String string : valList) {
-                if (j >= countIBIdxBegin) {
-                    if (j < countIBIdx + countIBIdxBegin) {
-                        data[ri][0] = ri + 1;
-                        i = 1;
-                        for (String str : string.split("[ ]")) {
-                            if (str.trim().length() > 0) {
-                                data[ri][i] = NumberHelpers.addNol(str.trim());
-                            }
-                            i++;
-                        }
-                        ri++;
-                    }
-                }
-                j++;
+            setData(countIBIdxBegin);
 
-            }
             jScrollPane1 = new javax.swing.JScrollPane();
             DefaultTableModel model = new DefaultTableModel(data, columnNames);
             jTable1 = new JTable(model) {
@@ -109,10 +92,23 @@ public class LINClass extends EditClass implements PanelInterface {
 
             jTable1.getModel().addTableModelListener(new TableModelListener() {
 
+                @Override
                 public void tableChanged(TableModelEvent e) {
-                    if (e.getColumn() != 0) {
+                    if (e.getColumn() > 0) {
                         int ii = jTabbedPane.getSelectedIndex();
                         JTable jT = (JTable) jTableList.get(ii);
+                        LogEditClass logEditClass;
+                        if (e.getType() == -1) {
+                            logEditClass = new LogEditClass(-1, ii, e.getFirstRow(), e.getColumn(), "del");
+                        } else {
+                            Object newValue = jT.getValueAt(e.getFirstRow(), e.getColumn());
+                            if (newValue != null) {
+                                logEditClass = new LogEditClass(0, ii, e.getFirstRow(), e.getColumn(), (String) newValue);
+                            } else {
+                                logEditClass = new LogEditClass(1, ii, e.getFirstRow(), e.getColumn(), "add");
+                            }
+                        }
+                        addLogEditClassList(logEditClass);
                         for (int i = 0; i < jT.getRowCount(); i++) {
                             if (jT.getValueAt(i, 1) != null && jT.getValueAt(i, 1).toString().trim().length() > 0) {
                                 jT.setValueAt(i + 1, i, 0);
@@ -139,7 +135,54 @@ public class LINClass extends EditClass implements PanelInterface {
 
         return jPanel1;
     }
+    private void setData(int countIBIdxBegin)
+    {
+            data = new Object[50][5 + 1];
+            int i = 0;
+            int j = 0;
+            int ri = 0;
+            for (String string : valList) {
+                if (j >= countIBIdxBegin) {
+                    if (j < countIBIdx + countIBIdxBegin) {
+                        if(ri>=data.length){
+                            moreData(data);
+                                    }
+                        data[ri][0] = ri + 1;
+                        i = 1;
+                        for (String str : string.split("[ ]")) {
+                            if (str.trim().length() > 0) {
+                                data[ri][i] = NumberHelpers.addNol(str.trim());
+                            }
+                            i++;
+                        }
+                        ri++;
+                    }
+                }
+                j++;
 
+            }
+    }
+    private void moreData(Object[][] arr)
+    {
+        data = new Object[arr.length*2+1][6];
+        for (int row = 0; row < arr.length; row++){
+              for (int col = 0; col < arr[row].length; col++){
+                  data[row][col] = arr[row][col];
+              }
+        }
+    }
+    private void addLogEditClassList(LogEditClass logEditClass) {
+        boolean find = false;
+        for (LogEditClass a : logEditClassList) {
+            if (a.getId_list() == logEditClass.getId_list() && a.getId_row() == logEditClass.getId_row() && a.getId_col() == logEditClass.getId_col()) {
+                a.setVal(logEditClass.getVal());
+                find = true;
+            }
+        }
+        if (!find) {
+            logEditClassList.add(logEditClass);
+        }
+    }
     @Override
     public JTable getTable() {
         return jTableList.get(jTabbedPane.getSelectedIndex());
@@ -190,9 +233,8 @@ public class LINClass extends EditClass implements PanelInterface {
 
     @Override
     public void saveValue() {
-        String dataIZL = "";
-        int countGroupAg = 0;
         try {
+            if(logEditClassList.isEmpty()) return;
             int countKS = new SXMClass(null).getKS(projectName.substring(projectName.indexOf("/") + 1, projectName.length()) + ".SXM");
             //выделим номер интервала
             Pattern p = Pattern.compile("interv([0-9]*)");
@@ -200,14 +242,24 @@ public class LINClass extends EditClass implements PanelInterface {
             String numIntervalStart = "01";
             if (m.find()) {
                 numIntervalStart = m.group(1);
-            }else logger_job.log(Level.ERROR, "no matcher 'interv([0-9]*)' in "+projectName);
+            } else {
+                logger_job.log(Level.ERROR, "no matcher 'interv([0-9]*)' in " + projectName.toLowerCase());
+                JOptionPane.showMessageDialog(null, "no matcher 'interv([0-9]*)' in " + projectName.toLowerCase(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+            }
+            if (JOptionPane.showConfirmDialog(null, "Перезаписать данные в остальных интервалах?", "Перезаписать данные?", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+                countKS = Integer.parseInt(numIntervalStart);
+            }
+
             for (int i_interv = Integer.parseInt(numIntervalStart); i_interv <= countKS; i_interv++) {
+                String dataIZL = "";
+                int countGroupAg = 0;
+
                 String newIndexInterv = i_interv + "";
                 if (i_interv < 10) {
                     newIndexInterv = "0" + i_interv;
                 }
-                String projectName_i = projectName.replace(numIntervalStart+"/", newIndexInterv+"/");
-                String fileName_i= LoadData.getPathJantar12() + "Data/" + projectName_i+".LIN";
+                String projectName_i = projectName.replace(numIntervalStart + "/", newIndexInterv + "/");
+                String fileName_i = LoadData.getPathJantar12() + "Data/" + projectName_i + ".LIN";
                 try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName_i), "Cp1251"))) {
                     for (int tabIdx = 0; tabIdx < jTableList.size(); tabIdx++) {
                         JTable jT = jTableList.get(tabIdx);
@@ -230,7 +282,7 @@ public class LINClass extends EditClass implements PanelInterface {
                 }
                 new IZLClass().saveDataFromAGR(projectName_i + ".IZL", dataIZL.substring(0, dataIZL.length() - 1));
             }
-            
+
             updateTitle(false);
 
         } catch (Exception e) {

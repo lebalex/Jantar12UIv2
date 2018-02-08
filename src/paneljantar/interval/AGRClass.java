@@ -5,8 +5,6 @@
 package paneljantar.interval;
 
 import helpers.*;
-import jantar12ui.ButtonTabComponent;
-import jantar12ui.Jantar12UI;
 import jantar12ui.LoadData;
 import java.io.*;
 import java.util.ArrayList;
@@ -39,6 +37,7 @@ public class AGRClass extends EditClass implements PanelInterface {
     private int countJOIdx = 0;
     private JScrollPane jScrollPane1;
     private List<JScrollPane> jScrollPane1List;
+    private List<LogEditClass> logEditClassList;
 
     public AGRClass(JTabbedPane tab) {
         tabPane = tab;
@@ -56,6 +55,7 @@ public class AGRClass extends EditClass implements PanelInterface {
         jTableList = new ArrayList<JTable>();
         excelAdapterList = new ArrayList<ExcelAdapter>();
         jScrollPane1List = new ArrayList<JScrollPane>();
+        logEditClassList = new ArrayList<>();
 
         /**/
         for (int idx = 0; idx < countM; idx++) {
@@ -76,35 +76,13 @@ public class AGRClass extends EditClass implements PanelInterface {
                 columnNamesDescript[i] = LoadData.getDescript(string);
                 i++;
             }
-            data = new Object[50][5 + 1];
-            int j = 0;
-            int ri = 0;
-            for (String string : valList) {
-                if (j >= countJOIdxBegin) {
-                    if (j < countJOIdx + countJOIdxBegin) {
-                        data[ri][0] = ri + 1;
-                        i = 1;
-                        for (String str : string.split("[ ]")) {
-                            if (str.trim().length() > 0) {
-                                data[ri][i] = NumberHelpers.addNol(str.trim());
-                            }
-                            i++;
-                        }
-                        ri++;
-                    }
-                }
-                j++;
-
-            }
+            setData(countJOIdxBegin);
             jScrollPane1 = new javax.swing.JScrollPane();
             DefaultTableModel model = new DefaultTableModel(data, columnNames);
             jTable1 = new JTable(model) {
+                @Override
                 public boolean isCellEditable(int rowIndex, int colIndex) {
-                    if (colIndex != 0) {
-                        return true;
-                    } else {
-                        return false;
-                    }
+                    return colIndex != 0;
                 }
             };
             jTable1.setDefaultRenderer(Object.class, new VECTableRenderer(7));
@@ -112,10 +90,23 @@ public class AGRClass extends EditClass implements PanelInterface {
 
             jTable1.getModel().addTableModelListener(new TableModelListener() {
 
+                @Override
                 public void tableChanged(TableModelEvent e) {
-                    if (e.getColumn() != 0) {
+                    if (e.getColumn() > 0) {
                         int ii = jTabbedPane.getSelectedIndex();
                         JTable jT = (JTable) jTableList.get(ii);
+                        LogEditClass logEditClass;
+                        if (e.getType() == -1) {
+                            logEditClass = new LogEditClass(-1, ii, e.getFirstRow(), e.getColumn(), "del");
+                        } else {
+                            Object newValue = jT.getValueAt(e.getFirstRow(), e.getColumn());
+                            if (newValue != null) {
+                                logEditClass = new LogEditClass(0, ii, e.getFirstRow(), e.getColumn(), (String) newValue);
+                            } else {
+                                logEditClass = new LogEditClass(1, ii, e.getFirstRow(), e.getColumn(), "add");
+                            }
+                        }
+                        addLogEditClassList(logEditClass);
                         for (int i = 0; i < jT.getRowCount(); i++) {
                             if (jT.getValueAt(i, 1) != null && jT.getValueAt(i, 1).toString().trim().length() > 0) {
                                 jT.setValueAt(i + 1, i, 0);
@@ -152,6 +143,54 @@ public class AGRClass extends EditClass implements PanelInterface {
         setArrangeTab(projectName, getSuff(this.getClass().getSimpleName()));
 
         return jPanel1;
+    }
+    private void setData(int countJOIdxBegin)
+    {
+            data = new Object[50][5 + 1];
+            int i = 0;
+            int j = 0;
+            int ri = 0;
+            for (String string : valList) {
+                if (j >= countJOIdxBegin) {
+                    if (j < countJOIdx + countJOIdxBegin) {
+                        if(ri>=data.length){
+                            moreData(data);
+                                    }
+                        data[ri][0] = ri + 1;
+                        i = 1;
+                        for (String str : string.split("[ ]")) {
+                            if (str.trim().length() > 0) {
+                                data[ri][i] = NumberHelpers.addNol(str.trim());
+
+                            }
+                            i++;
+                        }
+                        ri++;
+                    }
+                }
+                j++;
+
+            }
+    }
+    private void moreData(Object[][] arr)
+    {
+        data = new Object[arr.length*2+1][6];
+        for (int row = 0; row < arr.length; row++){
+            System.arraycopy(arr[row], 0, data[row], 0, arr[row].length);
+        }
+    }
+
+    private void addLogEditClassList(LogEditClass logEditClass) {
+        boolean find = false;
+        for (LogEditClass a : logEditClassList) {
+            if (a.getId_list() == logEditClass.getId_list() && a.getId_row() == logEditClass.getId_row() && a.getId_col() == logEditClass.getId_col()) {
+                a.setVal(logEditClass.getVal());
+                find = true;
+            }
+        }
+        if (!find) {
+            logEditClassList.add(logEditClass);
+        }
     }
 
     @Override
@@ -209,9 +248,8 @@ public class AGRClass extends EditClass implements PanelInterface {
 
     @Override
     public void saveValue() {
-        String dataAJO = "";
-        int countGroupAg = 0;
         try {
+            if(logEditClassList.isEmpty()) return;
             int countKS = new SXMClass(null).getKS(projectName.substring(projectName.indexOf("/") + 1, projectName.length()) + ".SXM");
             //выделим номер интервала
             Pattern p = Pattern.compile("interv([0-9]*)");
@@ -219,39 +257,122 @@ public class AGRClass extends EditClass implements PanelInterface {
             String numIntervalStart = "01";
             if (m.find()) {
                 numIntervalStart = m.group(1);
-            }else logger_job.log(Level.ERROR, "no matcher 'interv([0-9]*)' in "+projectName);
+            } else {
+                logger_job.log(Level.ERROR, "no matcher 'interv([0-9]*)' in " + projectName.toLowerCase());
+                JOptionPane.showMessageDialog(null, "no matcher 'interv([0-9]*)' in " + projectName.toLowerCase(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+            }
+
+            if (JOptionPane.showConfirmDialog(null, "Перезаписать данные в остальных интервалах?", "Перезаписать данные?", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+                countKS = Integer.parseInt(numIntervalStart);
+            }
+
             for (int i_interv = Integer.parseInt(numIntervalStart); i_interv <= countKS; i_interv++) {
-                String newIndexInterv=i_interv+"";
-                if(i_interv<10)
-                    newIndexInterv="0"+i_interv;
-                String projectName_i = projectName.replace(numIntervalStart+"/", newIndexInterv+"/");
-                String fileName_i= LoadData.getPathJantar12() + "Data/" + projectName_i+".AGR";
-                try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName_i), "Cp1251"))) {
-                    for (int tabIdx = 0; tabIdx < jTableList.size(); tabIdx++) {
-                        JTable jT = jTableList.get(tabIdx);
-                        for (int j = 0; j < jT.getModel().getRowCount(); j++) {
-                            if (jT.getModel().getValueAt(j, 1) != null && jT.getModel().getValueAt(j, 1).toString().trim().length() > 0) {
-                                countGroupAg++;
-                                for (int i = 1; i < jT.getModel().getColumnCount(); i++) {
-                                    if (i == 1) {
-                                        pw.print(jT.getModel().getValueAt(j, i));
-                                    } else {
-                                        pw.print(" " + jT.getModel().getValueAt(j, i));
-                                    }
-                                }
-                                pw.println("");
-                            }
-                        }
-                        dataAJO += countGroupAg + " ";
-                        countGroupAg = 0;
-                    }
+                String dataAJO = "";
+                int countGroupAg = 0;
+
+                String newIndexInterv = i_interv + "";
+                if (i_interv < 10) {
+                    newIndexInterv = "0" + i_interv;
                 }
-                new AJOClass().saveDataFromAGR(projectName_i + ".AJO", dataAJO.substring(0, dataAJO.length() - 1));
+                String projectName_i = projectName.replace(numIntervalStart + "/", newIndexInterv + "/");
+                String fileName_i = LoadData.getPathJantar12() + "Data/" + projectName_i + ".AGR";
+
+                /*if (i_interv != Integer.parseInt(numIntervalStart)) {
+                    rollforwatd(projectName_i + ".AGR", fileName_i);
+                } else {*/
+                    try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName_i), "Cp1251"))) {
+                        for (int tabIdx = 0; tabIdx < jTableList.size(); tabIdx++) {
+                            JTable jT = jTableList.get(tabIdx);
+                            for (int j = 0; j < jT.getModel().getRowCount(); j++) {
+                                if (jT.getModel().getValueAt(j, 1) != null && jT.getModel().getValueAt(j, 1).toString().trim().length() > 0) {
+                                    countGroupAg++;
+                                    for (int i = 1; i < jT.getModel().getColumnCount(); i++) {
+                                        if (i == 1) {
+                                            pw.print(jT.getModel().getValueAt(j, i));
+                                        } else {
+                                            pw.print(" " + jT.getModel().getValueAt(j, i));
+                                        }
+                                    }
+                                    pw.println("");
+                                }
+                            }
+                            dataAJO += countGroupAg + " ";
+                            countGroupAg = 0;
+                        }
+                    }
+                    new AJOClass().saveDataFromAGR(projectName_i + ".AJO", dataAJO.substring(0, dataAJO.length() - 1));
+                /*}*/
+
             }
             updateTitle(false);
+            logEditClassList.clear();
 
         } catch (Exception e) {
             logger_job.log(Level.ERROR, e);
+        }
+
+    }
+
+    private void rollforwatd(String fName, String fileName_i) {
+        try {
+            String dataAJO = "";
+            String projectName = fName.substring(0, fName.indexOf("."));
+            String fileName = LoadData.getPathJantar12() + "Data/" + fName;
+            getContextFile(fileName);
+            int countM = new SXMClass(null).getM(projectName.substring(projectName.indexOf("/") + 1, projectName.length()) + ".SXM");
+            int countJO = new AJOClass().getJOAll(projectName + ".AJO");
+            try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName_i), "Cp1251"))) {
+                for (int idx = 0; idx < countM; idx++) {
+                    countJOIdx = new AJOClass().getValueIndex(projectName + ".AJO", idx);
+                    int countJOIdxBegin = 0;
+                    if (idx > 0) {
+                        for (int k = 0; k < idx; k++) {
+                            countJOIdxBegin += new AJOClass().getValueIndex(projectName + ".AJO", k);
+                        }
+                    }
+
+                    setData(countJOIdxBegin);
+
+                    /////////////////////
+                    for (LogEditClass a : logEditClassList) {
+                        if (idx == a.getId_list()) {
+                            
+                            if (a.getType() == -1) {
+                                for (int i_del = 0; i_del < 6; i_del++) {
+                                    data[a.getId_row()][i_del] = null;
+                                }
+                            } else if (a.getType() == 1) {
+                                if((a.getId_row()+countJOIdx)>=data.length){
+                                        moreData(data);
+                                    }
+                                    data[a.getId_row()+countJOIdx][0] = a.getId_row()+countJOIdx + 1;
+                                    data[a.getId_row()+countJOIdx][a.getId_col()] = a.getVal();
+                            } else if (a.getVal().length() > 0) {
+                                data[a.getId_row()][a.getId_col()] = a.getVal();
+                            }
+
+                        }
+                    }
+                    int countGroupAg = 0;
+                    for (int row = 0; row < data.length; row++) {
+                        if (data[row][0] != null) {
+                            countGroupAg++;
+                            for (int col = 1; col < data[row].length; col++) {
+                                if (col == 1) {
+                                    pw.print(data[row][col]);
+                                } else {
+                                    pw.print(" " + data[row][col]);
+                                }
+                            }
+                            pw.println("");
+                        }
+                    }
+                    dataAJO += countGroupAg + " ";
+                }//конец листа
+
+                new AJOClass().saveDataFromAGR(projectName + ".AJO", dataAJO.substring(0, dataAJO.length() - 1));
+            }
+        } catch (Exception e) {
         }
 
     }

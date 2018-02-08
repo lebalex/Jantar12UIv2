@@ -20,6 +20,7 @@ public interface PanelInterface {
     public void clearRowsActionPerformed(ActionEvent e);
     public void deleteRowsActionPerformed(ActionEvent e);
     public void insertRowsActionPerformed(ActionEvent e);
+    public void addRowsActionPerformed(ActionEvent e);
     public void copyRowsActionPerformed(ActionEvent e);
     public void pasteRowsActionPerformed(ActionEvent e);
     public JTable getTable();
