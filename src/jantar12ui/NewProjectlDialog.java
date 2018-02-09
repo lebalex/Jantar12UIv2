@@ -19,11 +19,11 @@ public class NewProjectlDialog extends javax.swing.JDialog {
     /**
      * A return status code - returned if Cancel button has been pressed
      */
-    public static final int RET_CANCEL = 0;
+    private static final int RET_CANCEL = 0;
     /**
      * A return status code - returned if OK button has been pressed
      */
-    public static final int RET_OK = 1;
+    private static final int RET_OK = 1;
 
     /**
      * Creates new form NewProjectlDialog

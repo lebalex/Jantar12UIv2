@@ -6,9 +6,12 @@ package paneljantar.interval;
 
 import helpers.*;
 import jantar12ui.LoadData;
+import jantar12ui.SaveAGRJDialog;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.*;
@@ -29,7 +32,8 @@ public class AGRClass extends EditClass implements PanelInterface {
     public static final Logger logger_job = Logger.getLogger(AGRClass.class);
     private List<String> titleList = new ArrayList<>();
     private ArrayList<String> valList = new ArrayList<>();
-    Object[][] data;
+    //Object[][] data;
+    Vector<Vector> data;
     private List<JTable> jTableList;
     private List<ExcelAdapter> excelAdapterList;
     private String projectName;
@@ -43,12 +47,13 @@ public class AGRClass extends EditClass implements PanelInterface {
         tabPane = tab;
     }
 
+    @Override
     public JPanel getPanel(String fName) {
         projectName = fName.substring(0, fName.indexOf("."));
         String fileName = LoadData.getPathJantar12() + "Data/" + fName;
         getContextFile(fileName);
         int countM = new SXMClass(null).getM(projectName.substring(projectName.indexOf("/") + 1, projectName.length()) + ".SXM");
-        int countJO = new AJOClass().getJOAll(projectName + ".AJO");
+        //int countJO = new AJOClass().getJOAll(projectName + ".AJO");
 
         jPanel1 = new javax.swing.JPanel();
         jTabbedPane = new JTabbedPane();
@@ -78,7 +83,7 @@ public class AGRClass extends EditClass implements PanelInterface {
             }
             setData(countJOIdxBegin);
             jScrollPane1 = new javax.swing.JScrollPane();
-            DefaultTableModel model = new DefaultTableModel(data, columnNames);
+            DefaultTableModel model = new DefaultTableModel(data, new Vector(Arrays.asList(columnNames)));
             jTable1 = new JTable(model) {
                 @Override
                 public boolean isCellEditable(int rowIndex, int colIndex) {
@@ -92,21 +97,30 @@ public class AGRClass extends EditClass implements PanelInterface {
 
                 @Override
                 public void tableChanged(TableModelEvent e) {
-                    if (e.getColumn() > 0) {
+                    if (e.getColumn() != 0) {
                         int ii = jTabbedPane.getSelectedIndex();
                         JTable jT = (JTable) jTableList.get(ii);
-                        LogEditClass logEditClass;
-                        if (e.getType() == -1) {
-                            logEditClass = new LogEditClass(-1, ii, e.getFirstRow(), e.getColumn(), "del");
-                        } else {
-                            Object newValue = jT.getValueAt(e.getFirstRow(), e.getColumn());
-                            if (newValue != null) {
-                                logEditClass = new LogEditClass(0, ii, e.getFirstRow(), e.getColumn(), (String) newValue);
-                            } else {
-                                logEditClass = new LogEditClass(1, ii, e.getFirstRow(), e.getColumn(), "add");
-                            }
+                        LogEditClass logEditClass = null;
+                        Object newValue = null;
+                        switch (e.getType()) {
+                            case -1:
+                                logEditClass = new LogEditClass(e.getType(), ii, e.getFirstRow(), e.getColumn(), "del");
+                                break;
+                            case 0:
+                                if (e.getColumn() > 0) {
+                                    newValue = jT.getValueAt(e.getFirstRow(), e.getColumn());
+                                    if (newValue != null) {
+                                        logEditClass = new LogEditClass(e.getType(), ii, e.getFirstRow(), e.getColumn(), (String) newValue);
+                                    }
+                                }
+                                break;
+                            case 1:
+                                logEditClass = new LogEditClass(e.getType(), ii, e.getFirstRow(), 1, "add");
+                                break;
                         }
-                        addLogEditClassList(logEditClass);
+                        if (logEditClass != null) {
+                            addLogEditClassList(logEditClass);
+                        }
                         for (int i = 0; i < jT.getRowCount(); i++) {
                             if (jT.getValueAt(i, 1) != null && jT.getValueAt(i, 1).toString().trim().length() > 0) {
                                 jT.setValueAt(i + 1, i, 0);
@@ -144,7 +158,35 @@ public class AGRClass extends EditClass implements PanelInterface {
 
         return jPanel1;
     }
-    private void setData(int countJOIdxBegin)
+
+    private void setData(int countJOIdxBegin) {
+        data = new Vector();
+        int j = 0;
+        int ri = 0;
+        for (String string : valList) {
+            if (j >= countJOIdxBegin) {
+                if (j < countJOIdx + countJOIdxBegin) {
+                    Vector<String> dataRow = new Vector();
+                    dataRow.addElement(Integer.toString(ri + 1));
+                    for (String str : string.split("[ ]")) {
+                        if (str.trim().length() > 0) {
+                            dataRow.addElement(NumberHelpers.addNol(str.trim()));
+                        }
+                    }
+                    ri++;
+                    data.addElement(dataRow);
+                }
+            }
+            j++;
+
+        }
+        if (data.isEmpty()) {
+            data.addElement(new Vector(Arrays.asList(new String[columnNames.length])));
+            data.get(0).set(0, 1);
+        }
+    }
+
+    /*private void setData(int countJOIdxBegin)
     {
             data = new Object[50][5 + 1];
             int i = 0;
@@ -178,8 +220,7 @@ public class AGRClass extends EditClass implements PanelInterface {
         for (int row = 0; row < arr.length; row++){
             System.arraycopy(arr[row], 0, data[row], 0, arr[row].length);
         }
-    }
-
+    }*/
     private void addLogEditClassList(LogEditClass logEditClass) {
         boolean find = false;
         for (LogEditClass a : logEditClassList) {
@@ -249,7 +290,9 @@ public class AGRClass extends EditClass implements PanelInterface {
     @Override
     public void saveValue() {
         try {
-            if(logEditClassList.isEmpty()) return;
+            if (logEditClassList.isEmpty()) {
+                return;
+            }
             int countKS = new SXMClass(null).getKS(projectName.substring(projectName.indexOf("/") + 1, projectName.length()) + ".SXM");
             //выделим номер интервала
             Pattern p = Pattern.compile("interv([0-9]*)");
@@ -262,8 +305,26 @@ public class AGRClass extends EditClass implements PanelInterface {
                 JOptionPane.showMessageDialog(null, "no matcher 'interv([0-9]*)' in " + projectName.toLowerCase(), "Ошибка", JOptionPane.ERROR_MESSAGE);
             }
 
-            if (JOptionPane.showConfirmDialog(null, "Перезаписать данные в остальных интервалах?", "Перезаписать данные?", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+            /*if (JOptionPane.showConfirmDialog(null, "Перезаписать данные в остальных интервалах?", "Перезаписать данные?", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
                 countKS = Integer.parseInt(numIntervalStart);
+            }*/
+            boolean doUpdate = false;
+            SaveAGRJDialog saveAGRJDialog = new SaveAGRJDialog(getJantar12UI(), true);
+            saveAGRJDialog.setVisible(true);
+            int q = saveAGRJDialog.getReturnStatus();
+            switch (q) {
+                case -1:
+                    return;
+                case 0:
+                    countKS = Integer.parseInt(numIntervalStart);
+                    break;
+                case 1:
+                    doUpdate = false;
+                    break;
+                case 2:
+                    doUpdate = true;
+                    break;
+
             }
 
             for (int i_interv = Integer.parseInt(numIntervalStart); i_interv <= countKS; i_interv++) {
@@ -277,9 +338,9 @@ public class AGRClass extends EditClass implements PanelInterface {
                 String projectName_i = projectName.replace(numIntervalStart + "/", newIndexInterv + "/");
                 String fileName_i = LoadData.getPathJantar12() + "Data/" + projectName_i + ".AGR";
 
-                /*if (i_interv != Integer.parseInt(numIntervalStart)) {
+                if (i_interv != Integer.parseInt(numIntervalStart) && doUpdate) {
                     rollforwatd(projectName_i + ".AGR", fileName_i);
-                } else {*/
+                } else {
                     try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName_i), "Cp1251"))) {
                         for (int tabIdx = 0; tabIdx < jTableList.size(); tabIdx++) {
                             JTable jT = jTableList.get(tabIdx);
@@ -301,7 +362,7 @@ public class AGRClass extends EditClass implements PanelInterface {
                         }
                     }
                     new AJOClass().saveDataFromAGR(projectName_i + ".AJO", dataAJO.substring(0, dataAJO.length() - 1));
-                /*}*/
+                }
 
             }
             updateTitle(false);
@@ -320,7 +381,7 @@ public class AGRClass extends EditClass implements PanelInterface {
             String fileName = LoadData.getPathJantar12() + "Data/" + fName;
             getContextFile(fileName);
             int countM = new SXMClass(null).getM(projectName.substring(projectName.indexOf("/") + 1, projectName.length()) + ".SXM");
-            int countJO = new AJOClass().getJOAll(projectName + ".AJO");
+            //int countJO = new AJOClass().getJOAll(projectName + ".AJO");
             try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName_i), "Cp1251"))) {
                 for (int idx = 0; idx < countM; idx++) {
                     countJOIdx = new AJOClass().getValueIndex(projectName + ".AJO", idx);
@@ -336,32 +397,34 @@ public class AGRClass extends EditClass implements PanelInterface {
                     /////////////////////
                     for (LogEditClass a : logEditClassList) {
                         if (idx == a.getId_list()) {
-                            
-                            if (a.getType() == -1) {
-                                for (int i_del = 0; i_del < 6; i_del++) {
-                                    data[a.getId_row()][i_del] = null;
-                                }
+                            if ((a.getType() == -1) && (a.getId_row()<data.size())) {
+                                Vector<String> dataRow = data.get(a.getId_row());
+                                dataRow.set(0, null);
                             } else if (a.getType() == 1) {
-                                if((a.getId_row()+countJOIdx)>=data.length){
-                                        moreData(data);
-                                    }
-                                    data[a.getId_row()+countJOIdx][0] = a.getId_row()+countJOIdx + 1;
-                                    data[a.getId_row()+countJOIdx][a.getId_col()] = a.getVal();
-                            } else if (a.getVal().length() > 0) {
-                                data[a.getId_row()][a.getId_col()] = a.getVal();
+                                Vector<String> dataRow = new Vector();
+                                dataRow.addElement(Integer.toString(data.size() + 1));
+                                dataRow.addElement(a.getVal());
+                                for (int i = 2; i < columnNames.length; i++) {
+                                    dataRow.addElement(null);
+                                }
+                                data.addElement(dataRow);
+                            } else if ((a.getVal().length() > 0) && (a.getId_row()<data.size())) {
+                                Vector<String> dataRow = data.get(a.getId_row());
+                                dataRow.set(a.getId_col(), a.getVal());
                             }
 
                         }
                     }
                     int countGroupAg = 0;
-                    for (int row = 0; row < data.length; row++) {
-                        if (data[row][0] != null) {
+                    for (int row = 0; row < data.size(); row++) {
+                        Vector<String> dataRow = data.get(row);
+                        if (dataRow.get(0) != null) {
                             countGroupAg++;
-                            for (int col = 1; col < data[row].length; col++) {
+                            for (int col = 1; col < dataRow.size(); col++) {
                                 if (col == 1) {
-                                    pw.print(data[row][col]);
+                                    pw.print(dataRow.get(col));
                                 } else {
-                                    pw.print(" " + data[row][col]);
+                                    pw.print(" " + dataRow.get(col));
                                 }
                             }
                             pw.println("");
@@ -376,5 +439,4 @@ public class AGRClass extends EditClass implements PanelInterface {
         }
 
     }
-
 }

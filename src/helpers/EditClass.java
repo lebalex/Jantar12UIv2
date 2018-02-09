@@ -51,10 +51,15 @@ public class EditClass {
     public JTabbedPane tabPane;
     private char[] valuesKey = new char[] {'0','1','2','3','4','5','6','7','8','9','.'};
     public ExcelAdapter myAd;
+    private Jantar12UI jantar12UI;
     
     public void setJantar12UI(Jantar12UI jantar12UI)
     {
-        //
+        this.jantar12UI = jantar12UI;
+    }
+    public Jantar12UI getJantar12UI()
+    {
+        return this.jantar12UI;
     }
     public void createMenu(PanelInterface adaptee) {
         bufferClass = BufferClass.getInstance();
@@ -68,7 +73,7 @@ public class EditClass {
             menuItem.addActionListener(new DeleteRowsActionAdapter(adaptee));
             popupMenu.add(menuItem);
         }
-        if ((adaptee instanceof NAMClass)) {
+        if ((adaptee instanceof NAMClass) || (adaptee instanceof LINClass) || (adaptee instanceof AGRClass)) {
             menuItem = new JMenuItem(INSERT_CMD);
             menuItem.addActionListener(new InsertRowsActionAdapter(adaptee));
             popupMenu.add(menuItem);

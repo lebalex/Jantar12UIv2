@@ -6,9 +6,12 @@ package paneljantar.interval;
 
 import helpers.*;
 import jantar12ui.LoadData;
+import jantar12ui.SaveAGRJDialog;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.*;
@@ -29,7 +32,8 @@ public class LINClass extends EditClass implements PanelInterface {
     public static final Logger logger_job = Logger.getLogger(LINClass.class);
     private List<String> titleList = new ArrayList<>();
     private List<String> valList = new ArrayList<>();
-    Object[][] data;
+    //Object[][] data;
+    Vector<Vector> data;
     private List<JTable> jTableList;
     private List<ExcelAdapter> excelAdapterList;
     private String projectName;
@@ -77,7 +81,8 @@ public class LINClass extends EditClass implements PanelInterface {
             setData(countIBIdxBegin);
 
             jScrollPane1 = new javax.swing.JScrollPane();
-            DefaultTableModel model = new DefaultTableModel(data, columnNames);
+            //DefaultTableModel model = new DefaultTableModel(data, columnNames);
+            DefaultTableModel model = new DefaultTableModel(data, new Vector(Arrays.asList(columnNames)));
             jTable1 = new JTable(model) {
                 public boolean isCellEditable(int rowIndex, int colIndex) {
                     if (colIndex != 0) {
@@ -94,21 +99,30 @@ public class LINClass extends EditClass implements PanelInterface {
 
                 @Override
                 public void tableChanged(TableModelEvent e) {
-                    if (e.getColumn() > 0) {
+                    if (e.getColumn() != 0) {
                         int ii = jTabbedPane.getSelectedIndex();
                         JTable jT = (JTable) jTableList.get(ii);
-                        LogEditClass logEditClass;
-                        if (e.getType() == -1) {
-                            logEditClass = new LogEditClass(-1, ii, e.getFirstRow(), e.getColumn(), "del");
-                        } else {
-                            Object newValue = jT.getValueAt(e.getFirstRow(), e.getColumn());
-                            if (newValue != null) {
-                                logEditClass = new LogEditClass(0, ii, e.getFirstRow(), e.getColumn(), (String) newValue);
-                            } else {
-                                logEditClass = new LogEditClass(1, ii, e.getFirstRow(), e.getColumn(), "add");
-                            }
+                        LogEditClass logEditClass = null;
+                        Object newValue = null;
+                        switch (e.getType()) {
+                            case -1:
+                                logEditClass = new LogEditClass(e.getType(), ii, e.getFirstRow(), e.getColumn(), "del");
+                                break;
+                            case 0:
+                                if (e.getColumn() > 0) {
+                                    newValue = jT.getValueAt(e.getFirstRow(), e.getColumn());
+                                    if (newValue != null) {
+                                        logEditClass = new LogEditClass(e.getType(), ii, e.getFirstRow(), e.getColumn(), (String) newValue);
+                                    }
+                                }
+                                break;
+                            case 1:
+                                logEditClass = new LogEditClass(e.getType(), ii, e.getFirstRow(), 1, "add");
+                                break;
                         }
-                        addLogEditClassList(logEditClass);
+                        if (logEditClass != null) {
+                            addLogEditClassList(logEditClass);
+                        }
                         for (int i = 0; i < jT.getRowCount(); i++) {
                             if (jT.getValueAt(i, 1) != null && jT.getValueAt(i, 1).toString().trim().length() > 0) {
                                 jT.setValueAt(i + 1, i, 0);
@@ -135,7 +149,35 @@ public class LINClass extends EditClass implements PanelInterface {
 
         return jPanel1;
     }
-    private void setData(int countIBIdxBegin)
+
+    private void setData(int countIBIdxBegin) {
+        data = new Vector();
+        int j = 0;
+        int ri = 0;
+        for (String string : valList) {
+            if (j >= countIBIdxBegin) {
+                if (j < countIBIdx + countIBIdxBegin) {
+                    Vector<String> dataRow = new Vector();
+                    dataRow.addElement(Integer.toString(ri + 1));
+                    for (String str : string.split("[ ]")) {
+                        if (str.trim().length() > 0) {
+                            dataRow.addElement(NumberHelpers.addNol(str.trim()));
+                        }
+                    }
+                    ri++;
+                    data.addElement(dataRow);
+                }
+            }
+            j++;
+
+        }
+        if (data.isEmpty()) {
+            data.addElement(new Vector(Arrays.asList(new String[columnNames.length])));
+            data.get(0).set(0, 1);
+        }
+    }
+
+    /*private void setData(int countIBIdxBegin)
     {
             data = new Object[50][5 + 1];
             int i = 0;
@@ -170,7 +212,7 @@ public class LINClass extends EditClass implements PanelInterface {
                   data[row][col] = arr[row][col];
               }
         }
-    }
+    }*/
     private void addLogEditClassList(LogEditClass logEditClass) {
         boolean find = false;
         for (LogEditClass a : logEditClassList) {
@@ -183,6 +225,7 @@ public class LINClass extends EditClass implements PanelInterface {
             logEditClassList.add(logEditClass);
         }
     }
+
     @Override
     public JTable getTable() {
         return jTableList.get(jTabbedPane.getSelectedIndex());
@@ -234,7 +277,9 @@ public class LINClass extends EditClass implements PanelInterface {
     @Override
     public void saveValue() {
         try {
-            if(logEditClassList.isEmpty()) return;
+            if (logEditClassList.isEmpty()) {
+                return;
+            }
             int countKS = new SXMClass(null).getKS(projectName.substring(projectName.indexOf("/") + 1, projectName.length()) + ".SXM");
             //выделим номер интервала
             Pattern p = Pattern.compile("interv([0-9]*)");
@@ -246,10 +291,27 @@ public class LINClass extends EditClass implements PanelInterface {
                 logger_job.log(Level.ERROR, "no matcher 'interv([0-9]*)' in " + projectName.toLowerCase());
                 JOptionPane.showMessageDialog(null, "no matcher 'interv([0-9]*)' in " + projectName.toLowerCase(), "Ошибка", JOptionPane.ERROR_MESSAGE);
             }
-            if (JOptionPane.showConfirmDialog(null, "Перезаписать данные в остальных интервалах?", "Перезаписать данные?", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+            /*if (JOptionPane.showConfirmDialog(null, "Перезаписать данные в остальных интервалах?", "Перезаписать данные?", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
                 countKS = Integer.parseInt(numIntervalStart);
-            }
+            }*/
+            boolean doUpdate = false;
+            SaveAGRJDialog saveAGRJDialog = new SaveAGRJDialog(getJantar12UI(), true);
+            saveAGRJDialog.setVisible(true);
+            int q = saveAGRJDialog.getReturnStatus();
+            switch (q) {
+                case -1:
+                    return;
+                case 0:
+                    countKS = Integer.parseInt(numIntervalStart);
+                    break;
+                case 1:
+                    doUpdate = false;
+                    break;
+                case 2:
+                    doUpdate = true;
+                    break;
 
+            }
             for (int i_interv = Integer.parseInt(numIntervalStart); i_interv <= countKS; i_interv++) {
                 String dataIZL = "";
                 int countGroupAg = 0;
@@ -260,33 +322,103 @@ public class LINClass extends EditClass implements PanelInterface {
                 }
                 String projectName_i = projectName.replace(numIntervalStart + "/", newIndexInterv + "/");
                 String fileName_i = LoadData.getPathJantar12() + "Data/" + projectName_i + ".LIN";
-                try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName_i), "Cp1251"))) {
-                    for (int tabIdx = 0; tabIdx < jTableList.size(); tabIdx++) {
-                        JTable jT = jTableList.get(tabIdx);
-                        for (int j = 0; j < jT.getModel().getRowCount(); j++) {
-                            if (jT.getModel().getValueAt(j, 1) != null && jT.getModel().getValueAt(j, 1).toString().trim().length() > 0) {
-                                countGroupAg++;
-                                for (int i = 1; i < jT.getModel().getColumnCount(); i++) {
-                                    if (i == 1) {
-                                        pw.print(jT.getModel().getValueAt(j, i));
-                                    } else {
-                                        pw.print(" " + jT.getModel().getValueAt(j, i));
+                if (i_interv != Integer.parseInt(numIntervalStart) && doUpdate) {
+                    rollforwatd(projectName_i + ".LIN", fileName_i);
+                } else {
+                    try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName_i), "Cp1251"))) {
+                        for (int tabIdx = 0; tabIdx < jTableList.size(); tabIdx++) {
+                            JTable jT = jTableList.get(tabIdx);
+                            for (int j = 0; j < jT.getModel().getRowCount(); j++) {
+                                if (jT.getModel().getValueAt(j, 1) != null && jT.getModel().getValueAt(j, 1).toString().trim().length() > 0) {
+                                    countGroupAg++;
+                                    for (int i = 1; i < jT.getModel().getColumnCount(); i++) {
+                                        if (i == 1) {
+                                            pw.print(jT.getModel().getValueAt(j, i));
+                                        } else {
+                                            pw.print(" " + jT.getModel().getValueAt(j, i));
+                                        }
                                     }
+                                    pw.println("");
                                 }
-                                pw.println("");
                             }
+                            dataIZL += countGroupAg + " ";
+                            countGroupAg = 0;
                         }
-                        dataIZL += countGroupAg + " ";
-                        countGroupAg = 0;
                     }
+                    new IZLClass().saveDataFromAGR(projectName_i + ".IZL", dataIZL.substring(0, dataIZL.length() - 1));
                 }
-                new IZLClass().saveDataFromAGR(projectName_i + ".IZL", dataIZL.substring(0, dataIZL.length() - 1));
             }
 
             updateTitle(false);
 
         } catch (Exception e) {
             logger_job.log(Level.ERROR, e);
+        }
+
+    }
+
+    private void rollforwatd(String fName, String fileName_i) {
+        try {
+            String dataIZL = "";
+            String projectName = fName.substring(0, fName.indexOf("."));
+            String fileName = LoadData.getPathJantar12() + "Data/" + fName;
+            getContextFile(fileName);
+            int countIB = new SXMClass(null).getIB(projectName.substring(projectName.indexOf("/") + 1, projectName.length()) + ".SXM");
+
+            try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName_i), "Cp1251"))) {
+                for (int idx = 0; idx < countIB; idx++) {
+                    countIBIdx = new IZLClass().getValueIndex(projectName + ".IZL", idx);
+                    int countIBIdxBegin = 0;
+                    if (idx > 0) {
+                        for (int k = 0; k < idx; k++) {
+                            countIBIdxBegin += new IZLClass().getValueIndex(projectName + ".IZL", k);
+                        }
+                    }
+
+                    setData(countIBIdxBegin);
+
+                    /////////////////////
+                    for (LogEditClass a : logEditClassList) {
+                        if (idx == a.getId_list()) {
+                            if ((a.getType() == -1) && (a.getId_row()<data.size())) {
+                                Vector<String> dataRow = data.get(a.getId_row());
+                                dataRow.set(0, null);
+                            } else if (a.getType() == 1) {
+                                Vector<String> dataRow = new Vector();
+                                dataRow.addElement(Integer.toString(data.size() + 1));
+                                dataRow.addElement(a.getVal());
+                                for (int i = 2; i < columnNames.length; i++) {
+                                    dataRow.addElement(null);
+                                }
+                                data.addElement(dataRow);
+                            } else if ((a.getVal().length() > 0) && (a.getId_row()<data.size())){
+                                Vector<String> dataRow = data.get(a.getId_row());
+                                dataRow.set(a.getId_col(), a.getVal());
+                            }
+
+                        }
+                    }
+                    int countGroupAg = 0;
+                    for (int row = 0; row < data.size(); row++) {
+                        Vector<String> dataRow = data.get(row);
+                        if (dataRow.get(0) != null) {
+                            countGroupAg++;
+                            for (int col = 1; col < dataRow.size(); col++) {
+                                if (col == 1) {
+                                    pw.print(dataRow.get(col));
+                                } else {
+                                    pw.print(" " + dataRow.get(col));
+                                }
+                            }
+                            pw.println("");
+                        }
+                    }
+                    dataIZL += countGroupAg + " ";
+                }//конец листа
+
+                new IZLClass().saveDataFromAGR(projectName + ".IZL", dataIZL.substring(0, dataIZL.length() - 1));
+            }
+        } catch (Exception e) {
         }
 
     }

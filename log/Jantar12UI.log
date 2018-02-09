@@ -5045,3 +5045,22 @@
 08-02-2018 04:12:41 ERROR AWT-EventQueue-0 AGRClass:getPanel:122 - 1
 08-02-2018 04:12:42 ERROR AWT-EventQueue-0 AGRClass:getPanel:122 - 50
 08-02-2018 04:12:43 ERROR AWT-EventQueue-0 AGRClass:getPanel:122 - 62
+08-02-2018 06:23:04  INFO AWT-EventQueue-0 AGRClass:saveValue:290 - 1test
+08-02-2018 06:23:14  INFO AWT-EventQueue-0 AGRClass:saveValue:290 - 1test
+08-02-2018 06:23:25  INFO AWT-EventQueue-0 AGRClass:saveValue:290 - 1test
+08-02-2018 06:24:03  INFO AWT-EventQueue-0 AGRClass:saveValue:290 - 1test
+08-02-2018 06:24:05  INFO AWT-EventQueue-0 AGRClass:saveValue:290 - 215
+08-02-2018 06:24:16  INFO AWT-EventQueue-0 AGRClass:saveValue:290 - 315
+08-02-2018 06:25:04  INFO AWT-EventQueue-0 AGRClass:saveValue:290 - 414
+08-02-2018 08:36:43 ERROR AWT-EventQueue-0 AGRClass:getContextFile:253 - java.io.FileNotFoundException: D:\work\Jantar\ISEM\programm\Data\Interv12\Monog_08.AGR1 (Не удается найти указанный файл)
+08-02-2018 08:36:47 ERROR AWT-EventQueue-0 AGRClass:getContextFile:253 - java.io.FileNotFoundException: D:\work\Jantar\ISEM\programm\Data\Interv12\Monog_08.AGR1 (Не удается найти указанный файл)
+08-02-2018 08:36:48 ERROR AWT-EventQueue-0 AGRClass:getContextFile:253 - java.io.FileNotFoundException: D:\work\Jantar\ISEM\programm\Data\Interv12\Monog_08.AGR1 (Не удается найти указанный файл)
+08-02-2018 08:36:49 ERROR AWT-EventQueue-0 AGRClass:getContextFile:253 - java.io.FileNotFoundException: D:\work\Jantar\ISEM\programm\Data\Interv12\Monog_08.AGR1 (Не удается найти указанный файл)
+08-02-2018 08:36:49 ERROR AWT-EventQueue-0 AGRClass:getContextFile:253 - java.io.FileNotFoundException: D:\work\Jantar\ISEM\programm\Data\Interv12\Monog_08.AGR1 (Не удается найти указанный файл)
+08-02-2018 08:36:50 ERROR AWT-EventQueue-0 AGRClass:getContextFile:253 - java.io.FileNotFoundException: D:\work\Jantar\ISEM\programm\Data\Interv12\Monog_08.AGR1 (Не удается найти указанный файл)
+08-02-2018 08:37:15 ERROR AWT-EventQueue-0 AGRClass:getContextFile:253 - java.io.FileNotFoundException: D:\work\Jantar\ISEM\programm\Data\Interv12\Monog_08.AGR1 (Не удается найти указанный файл)
+08-02-2018 08:40:35 ERROR AWT-EventQueue-0 AGRClass:getContextFile:253 - java.io.FileNotFoundException: D:\work\Jantar\ISEM\programm\Data\Interv12\Monog_08.AGR1 (Не удается найти указанный файл)
+08-02-2018 11:25:17 ERROR AWT-EventQueue-0 AGRClass:saveValue:369 - java.lang.NullPointerException
+08-02-2018 11:25:19 ERROR AWT-EventQueue-0 AGRClass:saveValue:369 - java.lang.NullPointerException
+08-02-2018 11:28:27 ERROR AWT-EventQueue-0 AGRClass:saveValue:369 - java.awt.IllegalComponentStateException: The dialog is displayable.
+08-02-2018 11:28:29 ERROR AWT-EventQueue-0 AGRClass:saveValue:369 - java.awt.IllegalComponentStateException: The dialog is displayable.

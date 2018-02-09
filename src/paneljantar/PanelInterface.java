@@ -28,4 +28,5 @@ public interface PanelInterface {
     public void addToInsM(int idM);
     public ExcelAdapter getMyAd();
     public void setJantar12UI(Jantar12UI jantar12UI);
+    public Jantar12UI getJantar12UI();
 }
