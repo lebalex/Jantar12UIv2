@@ -41,7 +41,7 @@ public class LINClass extends EditClass implements PanelInterface {
     private int countIBIdx = 0;
     private JScrollPane jScrollPane1;
     private List<JScrollPane> jScrollPane1List;
-    private List<LogEditClass> logEditClassList;
+    //private List<LogEditClass> logEditClassList;
 
     public LINClass(JTabbedPane tab) {
         tabPane = tab;
@@ -57,7 +57,7 @@ public class LINClass extends EditClass implements PanelInterface {
         jTableList = new ArrayList<JTable>();
         excelAdapterList = new ArrayList<ExcelAdapter>();
         jScrollPane1List = new ArrayList<JScrollPane>();
-        logEditClassList = new ArrayList<>();
+        //logEditClassList = new ArrayList<>();
 
         /**/
         for (int idx = 0; idx < countIB; idx++) {
@@ -120,9 +120,9 @@ public class LINClass extends EditClass implements PanelInterface {
                                 logEditClass = new LogEditClass(e.getType(), ii, e.getFirstRow(), 1, "add");
                                 break;
                         }
-                        if (logEditClass != null) {
+                        /*if (logEditClass != null) {
                             addLogEditClassList(logEditClass);
-                        }
+                        }*/
                         for (int i = 0; i < jT.getRowCount(); i++) {
                             if (jT.getValueAt(i, 1) != null && jT.getValueAt(i, 1).toString().trim().length() > 0) {
                                 jT.setValueAt(i + 1, i, 0);
@@ -213,7 +213,7 @@ public class LINClass extends EditClass implements PanelInterface {
               }
         }
     }*/
-    private void addLogEditClassList(LogEditClass logEditClass) {
+    /*private void addLogEditClassList(LogEditClass logEditClass) {
         boolean find = false;
         for (LogEditClass a : logEditClassList) {
             if (a.getId_list() == logEditClass.getId_list() && a.getId_row() == logEditClass.getId_row() && a.getId_col() == logEditClass.getId_col()) {
@@ -224,7 +224,7 @@ public class LINClass extends EditClass implements PanelInterface {
         if (!find) {
             logEditClassList.add(logEditClass);
         }
-    }
+    }*/
 
     @Override
     public JTable getTable() {
@@ -277,9 +277,9 @@ public class LINClass extends EditClass implements PanelInterface {
     @Override
     public void saveValue() {
         try {
-            if (logEditClassList.isEmpty()) {
+            /*if (logEditClassList.isEmpty()) {
                 return;
-            }
+            }*/
             int countKS = new SXMClass(null).getKS(projectName.substring(projectName.indexOf("/") + 1, projectName.length()) + ".SXM");
             //выделим номер интервала
             Pattern p = Pattern.compile("interv([0-9]*)");
@@ -294,7 +294,7 @@ public class LINClass extends EditClass implements PanelInterface {
             /*if (JOptionPane.showConfirmDialog(null, "Перезаписать данные в остальных интервалах?", "Перезаписать данные?", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
                 countKS = Integer.parseInt(numIntervalStart);
             }*/
-            boolean doUpdate = false;
+            //boolean doUpdate = false;
             SaveAGRJDialog saveAGRJDialog = new SaveAGRJDialog(getJantar12UI(), true);
             saveAGRJDialog.setVisible(true);
             int q = saveAGRJDialog.getReturnStatus();
@@ -304,12 +304,12 @@ public class LINClass extends EditClass implements PanelInterface {
                 case 0:
                     countKS = Integer.parseInt(numIntervalStart);
                     break;
-                case 1:
+                /*case 1:
                     doUpdate = false;
                     break;
                 case 2:
                     doUpdate = true;
-                    break;
+                    break;*/
 
             }
             for (int i_interv = Integer.parseInt(numIntervalStart); i_interv <= countKS; i_interv++) {
@@ -322,9 +322,9 @@ public class LINClass extends EditClass implements PanelInterface {
                 }
                 String projectName_i = projectName.replace(numIntervalStart + "/", newIndexInterv + "/");
                 String fileName_i = LoadData.getPathJantar12() + "Data/" + projectName_i + ".LIN";
-                if (i_interv != Integer.parseInt(numIntervalStart) && doUpdate) {
+                /*if (i_interv != Integer.parseInt(numIntervalStart) && doUpdate) {
                     rollforwatd(projectName_i + ".LIN", fileName_i);
-                } else {
+                } else {*/
                     try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName_i), "Cp1251"))) {
                         for (int tabIdx = 0; tabIdx < jTableList.size(); tabIdx++) {
                             JTable jT = jTableList.get(tabIdx);
@@ -346,7 +346,7 @@ public class LINClass extends EditClass implements PanelInterface {
                         }
                     }
                     new IZLClass().saveDataFromAGR(projectName_i + ".IZL", dataIZL.substring(0, dataIZL.length() - 1));
-                }
+                /*}*/
             }
 
             updateTitle(false);
@@ -357,7 +357,7 @@ public class LINClass extends EditClass implements PanelInterface {
 
     }
 
-    private void rollforwatd(String fName, String fileName_i) {
+    /*private void rollforwatd(String fName, String fileName_i) {
         try {
             String dataIZL = "";
             String projectName = fName.substring(0, fName.indexOf("."));
@@ -421,5 +421,5 @@ public class LINClass extends EditClass implements PanelInterface {
         } catch (Exception e) {
         }
 
-    }
+    }*/
 }

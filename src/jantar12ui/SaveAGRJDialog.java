@@ -23,7 +23,7 @@ public class SaveAGRJDialog extends javax.swing.JDialog {
     private static final int RET_CANCEL = -1;
     private static final int RET_ONE = 0;
     private static final int RET_COPY = 1;
-    private static final int RET_UPDATE = 2;
+    //private static final int RET_UPDATE = 2;
     private int returnStatus = RET_ONE;
 
 
@@ -64,7 +64,6 @@ public class SaveAGRJDialog extends javax.swing.JDialog {
         buttonGroup2 = new javax.swing.ButtonGroup();
         jRadioButton1 = new javax.swing.JRadioButton();
         jRadioButton2 = new javax.swing.JRadioButton();
-        jRadioButton3 = new javax.swing.JRadioButton();
         jButtonSave = new javax.swing.JButton();
         jButtonCancel = new javax.swing.JButton();
 
@@ -83,9 +82,6 @@ public class SaveAGRJDialog extends javax.swing.JDialog {
 
         buttonGroup2.add(jRadioButton2);
         jRadioButton2.setText("Клонировать на все интервалы");
-
-        buttonGroup2.add(jRadioButton3);
-        jRadioButton3.setText("Внести изменения во все интервалы");
 
         jButtonSave.setText("Сохранить");
         jButtonSave.setActionCommand("Save");
@@ -108,18 +104,15 @@ public class SaveAGRJDialog extends javax.swing.JDialog {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jRadioButton1)
-                            .addComponent(jRadioButton2)
-                            .addComponent(jRadioButton3))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButtonSave)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                    .addComponent(jRadioButton1)
+                    .addComponent(jRadioButton2))
+                .addContainerGap(141, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButtonSave)
+                .addGap(4, 4, 4)
                 .addComponent(jButtonCancel)
                 .addContainerGap())
         );
@@ -130,8 +123,6 @@ public class SaveAGRJDialog extends javax.swing.JDialog {
                 .addComponent(jRadioButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jRadioButton2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jRadioButton3)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonSave)
@@ -151,9 +142,9 @@ public class SaveAGRJDialog extends javax.swing.JDialog {
         if (jRadioButton2.isSelected()) {
             return_values = RET_COPY;
         }
-        if (jRadioButton3.isSelected()) {
+        /*if (jRadioButton3.isSelected()) {
             return_values = RET_UPDATE;
-        }
+        }*/
         doClose(return_values);
     }//GEN-LAST:event_jButtonSaveActionPerformed
 
@@ -225,6 +216,5 @@ public class SaveAGRJDialog extends javax.swing.JDialog {
     private javax.swing.JButton jButtonSave;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton2;
-    private javax.swing.JRadioButton jRadioButton3;
     // End of variables declaration//GEN-END:variables
 }

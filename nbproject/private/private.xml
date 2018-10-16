@@ -7,14 +7,6 @@
             <file>file:/D:/Work/Jantar/ISEM/Jantar12UIv2/src/paneljantar/interval/HNGClass.java</file>
             <file>file:/D:/Work/Jantar/ISEM/Jantar12UIv2/src/paneljantar/VECClass.java</file>
         </group>
-        <group name="Group All">
-            <file>file:/D:/work/Jantar/ISEM/Jantar12UIv2/src/jantar12ui/NewProjectlDialog.java</file>
-            <file>file:/D:/work/Jantar/ISEM/Jantar12UIv2/src/paneljantar/PanelInterface.java</file>
-            <file>file:/D:/work/Jantar/ISEM/Jantar12UIv2/src/jantar12ui/SaveAGRJDialog.java</file>
-            <file>file:/D:/work/Jantar/ISEM/Jantar12UIv2/src/helpers/EditClass.java</file>
-            <file>file:/D:/work/Jantar/ISEM/Jantar12UIv2/src/paneljantar/interval/LINClass.java</file>
-            <file>file:/D:/work/Jantar/ISEM/Jantar12UIv2/src/paneljantar/interval/AGRClass.java</file>
-            <file>file:/D:/work/Jantar/ISEM/Jantar12UIv2/src/jantar12ui/Jantar12UI.java</file>
-        </group>
+        <group name="Group All"/>
     </open-files>
 </project-private>
