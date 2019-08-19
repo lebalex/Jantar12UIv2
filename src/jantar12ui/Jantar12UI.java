@@ -438,13 +438,14 @@ public class Jantar12UI extends javax.swing.JFrame {
             if(newProjectlDialog.getReturnStatus()==1)
             {
                 CopyProjectClass copyProjectClass = new CopyProjectClass();
-                if(copyProjectClass.copyProject(newProjectlDialog.getNameTextField().getText(), newProjectlDialog.getDiscriptTextField().getText(), selectedScenClass, LoadData.getPathJantar12()))
+                if(copyProjectClass.copyProject(this, newProjectlDialog.getNameTextField().getText(), newProjectlDialog.getDiscriptTextField().getText(), selectedScenClass, LoadData.getPathJantar12()))
                 {
                     TreeNode treeNode = new TreeNode(LoadData.getPathJantar12(), extNameClass);
                     TreeModel treeModel = new DefaultTreeModel(treeNode.ctreateTree());
                     jTree1.setModel(treeModel);
                     JOptionPane.showMessageDialog(this, "Проект сохранен как "+newProjectlDialog.getDiscriptTextField().getText(), "Сообщение", 1);
-                }
+                }else
+                    JOptionPane.showMessageDialog(this, "Что-то пошло не так. Проект НЕ сохранен как "+newProjectlDialog.getDiscriptTextField().getText(), "Сообщение", 1);
             }
         }
         
