@@ -94,7 +94,7 @@ public class Jantar12UI extends javax.swing.JFrame {
         aboutMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Jantar Java UI от 20.03.2018");
+        setTitle("Jantar Java UI от 20.08.2019");
 
         jTree1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -438,7 +438,7 @@ public class Jantar12UI extends javax.swing.JFrame {
             if(newProjectlDialog.getReturnStatus()==1)
             {
                 CopyProjectClass copyProjectClass = new CopyProjectClass();
-                if(copyProjectClass.copyProject(this, newProjectlDialog.getNameTextField().getText(), newProjectlDialog.getDiscriptTextField().getText(), selectedScenClass, LoadData.getPathJantar12()))
+                if(copyProjectClass.copyProject(newProjectlDialog.getNameTextField().getText(), newProjectlDialog.getDiscriptTextField().getText(), selectedScenClass, LoadData.getPathJantar12()))
                 {
                     TreeNode treeNode = new TreeNode(LoadData.getPathJantar12(), extNameClass);
                     TreeModel treeModel = new DefaultTreeModel(treeNode.ctreateTree());

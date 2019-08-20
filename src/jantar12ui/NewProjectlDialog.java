@@ -98,6 +98,12 @@ public class NewProjectlDialog extends javax.swing.JDialog {
 
         jLabel1.setText("Имя проекта (8 символов)");
 
+        nameTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                nameTextFieldKeyReleased(evt);
+            }
+        });
+
         jLabel2.setText("Название проекта");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -148,7 +154,7 @@ public class NewProjectlDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-        if(nameTextField.getText().trim().length()!=0){
+        if(nameTextField.getText().trim().length()!=0 && nameTextField.getText().trim().length()<=8){
             if(descriptTextField.getText().trim().length()!=0){
                 if(getAnalogName(nameTextField.getText().trim()))
                 {
@@ -157,7 +163,10 @@ public class NewProjectlDialog extends javax.swing.JDialog {
                 } else
                     doClose(RET_OK);
             }
+        }else {
+            JOptionPane.showMessageDialog(this, "Имя файла не соответствует принятой длинне!", "Сообщение", 1);
         }
+            
     }//GEN-LAST:event_okButtonActionPerformed
     private boolean getAnalogName(String fName)
     {
@@ -182,6 +191,15 @@ public class NewProjectlDialog extends javax.swing.JDialog {
     private void closeDialog(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_closeDialog
         doClose(RET_CANCEL);
     }//GEN-LAST:event_closeDialog
+
+    private void nameTextFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nameTextFieldKeyReleased
+        // TODO add your handling code here:
+        if(nameTextField.getText().trim().length()>8){
+            JOptionPane.showMessageDialog(this, "Слишком длинное имя", "Сообщение", 1);
+            nameTextField.setText((nameTextField.getText()).substring(0, 8));
+            
+        }
+    }//GEN-LAST:event_nameTextFieldKeyReleased
     
     private void doClose(int retStatus) {
         returnStatus = retStatus;

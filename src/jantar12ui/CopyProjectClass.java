@@ -60,18 +60,8 @@ public class CopyProjectClass {
         }
     }
 
-    private boolean checkName(String name, Jantar12UI jantar12UI) {
-        if (name.length() > 8) {
-            JOptionPane.showMessageDialog(jantar12UI, "Длина имени более 8 символов", "Сообщение", 1);
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean copyProject(Jantar12UI jantar12UI, String name, String descript, ScenClass selectedScenClass, String path) {
+    public boolean copyProject(String name, String descript, ScenClass selectedScenClass, String path) {
         boolean result = true;
-        if (checkName(name, jantar12UI)) {
             try {
                 PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(path + "BEGIN/PcxAll.dat", true), "Cp1251"));
                 pw.print(String.format("%1$-9s", name));
@@ -107,9 +97,7 @@ public class CopyProjectClass {
                 result = false;
             }
             return result;
-        } else {
-            return false;
-        }
+
 
     }
 
